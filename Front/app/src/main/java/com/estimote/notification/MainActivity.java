@@ -14,6 +14,7 @@ import android.provider.Settings.Secure;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -32,15 +33,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 //
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private String baseUrl = "http://192.168.0.100:8080/";
+    private String baseUrl = "http://172.20.10.2:8080/";
     Button send,actualizar;
     TextView status,resServerUser,componentIdAndroid,notifyText,ipConfig;
     EditText nombreEditText,iPEditText;
     Switch activeNotify;
     private Retrofit retrofit;
-    Usuario usuario;
-    Controlusuario control_usuario;
-    Controlregistro control_registro;
+    User user;
+    UserInterface userInterface;
+    RegistroInterface registroInterface;
     int uno = 0;
 
     @Override
@@ -52,40 +53,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //SET URL
         iPEditText.setText(baseUrl,TextView.BufferType.EDITABLE);
-        ipConfig.setText("Url registrada: " + baseUrl);
+        ipConfig.setText("Url: " + baseUrl);
 
         //activar eventos
         send.setOnClickListener(this);
         actualizar.setOnClickListener(this);
 
-        control_usuario = initServerUser();
-        control_registro = initServerRegistro();
+        userInterface = initServerUser();
+        registroInterface = initServerRegistro();
 
         // obtener Id de android
         String idAndroid = Secure.getString(this.getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
         componentIdAndroid.setText("Id android: " + idAndroid);
 
-        Call<Usuario> respuestaServerInit = control_usuario.getUsuariosByAndroid(idAndroid);
+        Call<User> respuestaServerInit = userInterface.getUserByAndroid(idAndroid);
 
-        respuestaServerInit.enqueue(new Callback<Usuario>() {
+        respuestaServerInit.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()){
-                    usuario = response.body();
-                    nombreEditText.setText(usuario.getNombre(),TextView.BufferType.EDITABLE);
-                    resServerUser.setText(usuario.getIdAndroid() + " " + usuario.getId() + " " + usuario.getNombre());
+                    user = response.body();
+                    nombreEditText.setText(user.getNombre(),TextView.BufferType.EDITABLE);
+                    resServerUser.setText(user.getIdAndroid() + " " + user.getId() + " " + user.getNombre());
                     status.setText("Usuario registrado.");
                     uno = 1;
                     startMonitoring();
                 }else{
                     status.setText("Usuario no registrado.");
                     resServerUser.setText(response.toString());
-                    usuario = null;
+                    user = null;
                 }
             }
             @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
-                resServerUser.setText("error--------");
+            public void onFailure(Call<User> call, Throwable t) {
+                resServerUser.setText("error al registrar usuario");
             }
         });
     }
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void startMonitoring() {
         final MyApplication application = (MyApplication) getApplication();
 
-        application.setData(notifyText,activeNotify,control_registro,usuario.getId());
+        application.setData(notifyText,activeNotify,registroInterface,user.getId());
 
         RequirementsWizardFactory
             .createEstimoteRequirementsWizard()
@@ -122,21 +123,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
-    private Controlusuario initServerUser() {
+    private UserInterface initServerUser() {
         //captura de datos
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        return retrofit.create(Controlusuario.class);
+        return retrofit.create(UserInterface.class);
     }
-    private Controlregistro initServerRegistro() {
+    private RegistroInterface initServerRegistro() {
         //captura de datos
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        return retrofit.create(Controlregistro.class);
+        return retrofit.create(RegistroInterface.class);
     }
 
     private void initComponent() {
@@ -161,21 +162,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String id_android = Secure.getString(this.getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
                 if(!TextUtils.isEmpty(nombre) && !TextUtils.isEmpty(id_android)) {
                     if (uno == 1){
-                        sendPut(usuario.getId(), nombre);
+                        sendPut(user.getId(), nombre);
                     }else{
                         uno = 1;
                         sendPost(id_android, nombre);
                     }
 
                 }else{
-                    status.setText("Datos insuficientes");
+                    status.setText("faltan datos");
                 }
                 break;
             case R.id.buttonConfig:
                 String auxUrl = iPEditText.getText().toString().trim();
                 if(!baseUrl.isEmpty()){
                     baseUrl = auxUrl;
-                    ipConfig.setText("Dirección registrada: " + baseUrl);
+                    ipConfig.setText("Url: " + baseUrl);
                     iPEditText.setText(baseUrl,TextView.BufferType.EDITABLE);
                 }else{
                     ipConfig.setText("Error");
@@ -187,19 +188,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void sendPost(String id_android, String nombre) {
-        Call<Usuario> resp = control_usuario.insertUsuario(id_android, nombre);
+        Call<User> resp = userInterface.insertUser(id_android, nombre);
 
-        resp.enqueue(new Callback<Usuario>() {
+        resp.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()){
-                    usuario = response.body();
+                    user = response.body();
                     status.setText("Usuario registrado");
                     startMonitoring();
                 }
             }
             @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 if(call.isCanceled()) {
                     Log.e("chao", "request was aborted");
                 }else {
@@ -211,19 +212,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     public void sendPut(Integer id,  String nombre) {
-        Call<Usuario> resp = control_usuario.updateUsuario(id, nombre);
+        Call<User> resp = userInterface.updateUser(id, nombre);
 
-        resp.enqueue(new Callback<Usuario>() {
+        resp.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()){
-                    usuario.setNombre(response.body().getNombre());
-                    resServerUser.setText(usuario.getIdAndroid() + " " + usuario.getId() + " " + usuario.getNombre());
+                    user.setNombre(response.body().getNombre());
+                    resServerUser.setText(user.getIdAndroid() + " " + user.getId() + " " + user.getNombre());
                     status.setText("Usuario actualizado");
                 }
             }
             @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 if(call.isCanceled()) {
                     Log.e("chao", "request was aborted");
                 }else {

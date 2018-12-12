@@ -16,8 +16,8 @@ public class MyApplication extends Application {
     public TextView notifyText;
     public Switch activeNotify;
     public Integer id;
-    public Controlregistro control;
-    public EstimoteCloudCredentials cloudCredentials = new EstimoteCloudCredentials("redsocial-589", "67d48d8a421c24841f6a8d56c67b1b73");
+    public RegistroInterface registroInterface;
+    public EstimoteCloudCredentials cloudCredentials = new EstimoteCloudCredentials("redes-sociales-opn", "f63c8d2f7cfca263151b427754426230");
     private NotificationsManager notificationsManager;
 
     public void enableBeaconNotifications() {
@@ -25,11 +25,11 @@ public class MyApplication extends Application {
         notificationsManager.startMonitoring();
     }
 
-    public void setData(TextView notify, Switch actNotify, Controlregistro registro, Integer id) {
+    public void setData(TextView notify, Switch actNotify, RegistroInterface registroSer, Integer idt) {
         notifyText = notify;
         activeNotify = actNotify;
-        control = registro;
-        this.id = id;
+        registroInterface = registroSer;
+        id = idt;
     }
 
 }

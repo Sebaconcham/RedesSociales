@@ -11,13 +11,14 @@ import android.util.Log;
 
 import com.estimote.notification.MainActivity;
 import com.estimote.notification.MyApplication;
-import com.estimote.notification.Registros;
+import com.estimote.notification.Registro;
 import com.estimote.proximity_sdk.api.ProximityObserver;
 import com.estimote.proximity_sdk.api.ProximityObserverBuilder;
 import com.estimote.proximity_sdk.api.ProximityZone;
 import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
 import com.estimote.proximity_sdk.api.ProximityZoneContext;
 
+import java.util.Set;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -70,18 +71,18 @@ public class NotificationsManager {
                         .build();
 
         ProximityZone zone = new ProximityZoneBuilder()
-                .forTag("gruposRedSocial")
-                .inCustomRange(4.0)
+                .forTag("Dagoberto")
+                .inCustomRange(1)
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
                     public Unit invoke(ProximityZoneContext proximityContext) {
                         notifyDB(proximityContext,"Entrada");
                         int notificationId = 1;
                         if (((MyApplication) context).activeNotify.isChecked()){
-                            Notification mensaje = buildNotification("hola", proximityContext.getDeviceId());
+                            Notification mensaje = buildNotification("Conectado", "Beacon: "+proximityContext.getDeviceId()+", Etiquetado como: "+proximityContext.getTag());
                             notificationManager.notify(notificationId, mensaje);
                         }else{
-                            ((MyApplication) context).notifyText.setText("hola enviando registro... Sin notificacion");
+                            ((MyApplication) context).notifyText.setText("Conectado enviando registro... Sin notificacion");
                         }
                         return null;
                     }
@@ -92,10 +93,10 @@ public class NotificationsManager {
                         notifyDB(proximityContext,"Salida");
                         int notificationId = 1;
                         if (((MyApplication) context).activeNotify.isChecked()){
-                            Notification mensaje = buildNotification("chao", proximityContext.getDeviceId());
+                            Notification mensaje = buildNotification("Desconectado", "Beacon: "+proximityContext.getDeviceId()+", Etiquetado como: "+proximityContext.getTag());
                             notificationManager.notify(notificationId, mensaje);
                         }else{
-                            ((MyApplication) context).notifyText.setText("chao enviando registro... Sin notificacion");
+                            ((MyApplication) context).notifyText.setText("Desconectado enviando registro... Sin notificacion");
                         }
                         return null;
                     }
@@ -106,11 +107,11 @@ public class NotificationsManager {
     }
 
     private void notifyDB(ProximityZoneContext proximityContext , String estado) {
-        Call<Registros> registro = ((MyApplication) context).control.insertRegistros(proximityContext.getDeviceId(),estado,((MyApplication) context).id);
+        Call<Registro> registro = ((MyApplication) context).registroInterface.insertRegistro(proximityContext.getDeviceId(),estado,((MyApplication) context).id);
 
-        registro.enqueue(new Callback<Registros>() {
+        registro.enqueue(new Callback<Registro>() {
             @Override
-            public void onResponse(Call<Registros> call, Response<Registros> response) {
+            public void onResponse(Call<Registro> call, Response<Registro> response) {
                 if (response.isSuccessful()){
                     ((MyApplication) context).notifyText.setText(response.toString());
                 }else{
@@ -118,7 +119,7 @@ public class NotificationsManager {
                 }
             }
             @Override
-            public void onFailure(Call<Registros> call, Throwable t) {
+            public void onFailure(Call<Registro> call, Throwable t) {
                 ((MyApplication) context).notifyText.setText(t.toString());
             }
         });

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Red Social</string>
+    <string name="app_name">Redes Sociales</string>
     <string name="descripcion">Aplicación para la tomar de muestra de interacción social. Se requiere conectar a wifi "dd-wrt" y desconectar datos moviles. El uso de está aplicación no consume datos.</string>
     <string name="tituloFrom">Datos Usuario</string>
     <string name="configFrom">IP Servidor</string>
