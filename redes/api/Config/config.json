@@ -1,0 +1,17 @@
+{
+  "development": {
+    "username": "root",
+    "password": "",
+    "database": "beacon",
+    "host": "127.0.0.1",
+    "port": "3306",
+    "dialect": "mysql",
+    "logging": true,
+    "pool": {
+	    "max": 15,
+	    "min": 0,
+	    "acquire": 300000,
+	  	"idle": 10000
+    }
+  }
+}

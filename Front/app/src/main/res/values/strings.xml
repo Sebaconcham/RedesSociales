@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Red Social</string>
+    <string name="descripcion">Aplicación para la tomar de muestra de interacción social. Se requiere conectar a wifi "dd-wrt" y desconectar datos moviles. El uso de está aplicación no consume datos.</string>
+    <string name="tituloFrom">Datos Usuario</string>
+    <string name="configFrom">IP Servidor</string>
+    <string name="ConfigButton">Establecer Comunicación</string>
+    <string name="Nombre">Nombre</string>
+    <string name="send">Enviar</string>
+    <string name="statusDefault">...</string>
+    <string name="statusUser">Id_Android:</string>
+    <string name="textActiveNotify">Activar o desactivar Notificaciones</string>
+</resources>

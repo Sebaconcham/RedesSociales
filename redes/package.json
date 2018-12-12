@@ -1,0 +1,17 @@
+{
+  "name": "redes",
+  "version": "1.0.0",
+  "description": "Backend proyecto redes sociales",
+  "main": "back.js",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mysql2": "^1.6.4",
+    "sequelize": "^4.41.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Grupo franco piña",
+  "license": "ISC"
+}
